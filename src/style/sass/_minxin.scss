@@ -1,0 +1,23 @@
+@mixin min-width($min){
+    @if $min == sm{
+      @media(min-width:576px){@content;}
+    }@else if $min == md{
+      @media(min-width:768px){@content;}
+    }@else if $min == lg{
+      @media(min-width:992px){@content;}
+    }@else if $min == xl{
+      @media(min-width:1200px){@content}
+    }
+  };
+  
+  @mixin max-width($max){
+    @if $max == sm{
+      @media(max-width:575.98px){@content;}
+    }@else if $max == md{
+      @media(max-width:767.98px){@content;}
+    }@else if $max == lg{
+      @media(max-width:991.98px){@content;}
+    }@else if $max == xl{
+      @media(max-width:1199.98px){@content;}
+    }
+  };

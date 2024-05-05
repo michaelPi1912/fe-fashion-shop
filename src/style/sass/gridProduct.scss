@@ -1,0 +1,42 @@
+@import "./minxin";
+.product{
+    padding:30px 0;
+    &-input{
+      width:50%;
+      margin-right: auto;
+      margin-left: auto;
+      margin-bottom:10px;
+      padding-left:5px;
+      display: block;
+      transition:all .5s ease;
+      &:focus{
+        width: 55%
+      }
+      @include max-width(lg){
+        width:80%;
+        &:focus{
+          width: 90%
+        }
+      }
+      @include max-width(md){
+        width:80%;
+        &:focus{
+          width: 90%
+        }
+      }
+    }
+  }
+  
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-gap: 20px;
+    @include max-width(lg){
+      grid-template-columns: repeat(3, 1fr);
+      grid-gap:15px;
+    }
+    @include max-width(md){
+      grid-template-columns: repeat(2, 1fr) ;
+      grid-gap:15px;
+    }
+  }
