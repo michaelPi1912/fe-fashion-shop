@@ -13,11 +13,12 @@ function CloudinaryUploadWidget({ uwConfig, setPublicId }) {
       cloudName
     }
   });
-
+ console.log(loaded)
   useEffect(() => {
     // Check if the script is already loaded
     if (!loaded) {
-      const uwScript = document.getElementById("uw");
+      const uwScript = document.querySelector('[title="Upload Widget"]');
+      // console.log(uwScript)
       if (!uwScript) {
         // If not loaded, create and load the script
         const script = document.createElement("script");
@@ -44,7 +45,6 @@ function CloudinaryUploadWidget({ uwConfig, setPublicId }) {
           }
         }
       );
-
       document.getElementById("upload_widget").addEventListener(
         "click",
         function () {

@@ -5,6 +5,7 @@ import Modal from 'react-bootstrap/Modal';
 import Form from 'react-bootstrap/Form';
 import CloudinaryUploadWidget from "../../components/CloudinaryUploadWidget";
 import { Cloudinary } from "@cloudinary/url-gen";
+import toast from "react-hot-toast";
 // import { AdvancedImage, responsive, placeholder } from "@cloudinary/react";
 // import { image } from "@cloudinary/url-gen/qualifiers/source";
 export default function ProductPage(){
@@ -29,6 +30,8 @@ export default function ProductPage(){
     const [desc, setDesc] = useState();
     const [price, setPrice] = useState()
     const [stock, setStock]  = useState(0)
+    const [showAlert, setShowAlert] = useState(false);
+
     
 
     const [uwConfig] = useState({
@@ -60,17 +63,22 @@ export default function ProductPage(){
 
     const [products, setProducts] = useState();
     const [open,setOpen] = useState(false);
+    const [search, setSearch] = useState("");
+    const [searchCate, setSearchCate] = useState("");
+
+
     let paginationNumber = [];
-    const [curPage, setCurPage] = useState(1);
-    if(products !== undefined){
-        for (let i = 0; i < products.totalPages; i++) {
+    const [curPage, setCurPage] = useState(0);
+
+        for (let i = 0; i < products?.totalPages; i++) {
             paginationNumber.push(i);
         }
-    }
-
+    
+    console.log(search)
     console.log(products);
     console.log(categories);
-    console.log(paginationNumber + curPage)
+    console.log(paginationNumber +" "+ curPage)
+    console.log(paginationNumber[curPage+1])
     useEffect(() =>{
         if(admin === undefined){
             navigate("/admin")
@@ -115,9 +123,27 @@ export default function ProductPage(){
         ).then(
             json => {
                 setProducts(json)
+                setSearch("")
+                setSearchCate("")
             }
         )
     };
+
+    const loadSearch = () =>{
+        fetch(`${process.env.REACT_APP_API_URL}/api/v1/product/all?search=${search}&category=${searchCate}`,{
+        }).then(
+            res => {
+                // console.log(res.json())
+                res.json().then(
+            json => {
+                console.log(json)
+                setProducts(json)
+            }
+        )
+            }
+        )
+    };
+
     const loadCate = () =>{
         fetch(`http://localhost:8080/api/v1/category/list`,{
             headers: {
@@ -155,8 +181,11 @@ export default function ProductPage(){
           })
             .then(response => {
                 if(response.status === 200){
+                    toast.success("add product successfully")
                     loadData()
                     handleClickClose()
+                }else{
+                    toast.error("cannot add product")
                 }
             })
         }
@@ -181,15 +210,24 @@ export default function ProductPage(){
             })
             .then(response => {
                 if(response.status === 200){
+                    toast.success("Product update successful")
                     loadData()
                     handleClickCloseEdit()
+                }else{
+                    toast.success("Product update failed")
                 }
             })
         }
 
     };
+    const handleShowAlert = (item) =>{
+        setCurProduct(item)
+        setShowAlert(true);
+    };
+    const handleCloseAlert = () =>{
+        setShowAlert(false);
+    }
     const deleteProduct = id => {
-        // console.log(`${process.env.REACT_APP_API_URL}/api/v1/category/delete/${id}`);
         fetch(`${process.env.REACT_APP_API_URL}/api/v1/product/delete/${id}`, {
           method: 'Delete',
           headers:{
@@ -197,16 +235,19 @@ export default function ProductPage(){
           }
         })
         .then(response => {
-        if(response.status === 200){
-            console.log("success")
-            loadData()
-        }
+            if(response.status === 200){
+                toast.success("Product Was Deleted")
+                loadData()
+                handleCloseAlert()
+            }else{
+                toast.error("Cannot Delete Product")
+            }
         })
     };
 
     const navigatePageable = nums =>{
         setCurPage(nums)
-        fetch(`${process.env.REACT_APP_API_URL}/api/v1/product/all?page=${nums}`,{
+        fetch(`${process.env.REACT_APP_API_URL}/api/v1/product/all?page=${nums}&category=${searchCate}&search=${search}`,{
             headers: {
                 'Authorization' : `Bearer ${admin.access_token}`
             }
@@ -218,15 +259,62 @@ export default function ProductPage(){
             }
         )
     }
+
+    function countStock(product){
+        let stock =0;
+        product.productItem.map(item =>{
+            stock += item.stock;
+        })
+
+        return stock;
+    }
+
+    function countSold(product){
+        let sold =0;
+        product.productItem.map(item =>{
+            sold += item.sold;
+        })
+
+        return sold;
+    }
+
     return(
         <div className="container-fluid" style={{height:"100%"}}>
             <div className="row">
                 <SideBar />
                 <div className="col" style={{padding:"2%"}}>
                     <h1>Product</h1>
-                    <hr/>
+                    
                     <button  style={{background: "#0288D1"}} onClick={handleClickOpen}><i class="bi bi-plus-lg"></i><strong style={{marginLeft:"5px"}}>Add New</strong></button>
                     <br/>
+                    <form>
+                        <div className="d-flex gap-2">
+                            <label ><strong>NAME</strong></label>
+                            <input type="text" style={{width:"15%"}} onChange={e=> setSearch(e.target.value)}/>
+                            <label><strong>CATEGORY</strong></label>
+                            <select onChange={e=> setSearchCate(e.target.value)}>
+                                <option value="">All</option>
+                                {
+                                    categories?.categoryList.map(cate =>(
+                                        <option value={cate.name}>{cate.parent?.name} {cate.name} </option>
+                                    ))
+                                }
+                            </select>
+                            {/* Search */}
+                            <button type="button" style={{height:"30px",width:"100px", textAlign:'center'}} onClick={() => loadSearch()}><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
+                            <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/>
+                            </svg>&nbsp; Search</button>
+                            {/* <button type="button" style={{height:"100%", width:"90px",padding:"2px"}} onClick={() => loadSearch()}><i class="bi bi-search"></i>&nbsp;Search</button> */}
+                            {/* Reset */}
+                            <button style={{height:"30px", width:"60px"}} type="reset" onClick={() => loadData()}><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-clockwise" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z"/>
+                            <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466"/>
+                            </svg></button>
+                           
+                        </div> 
+                    </form>
+                        
+                    <hr/>
                     <div style={{height:"60%", width:"80%", overflowY:"scroll", position:"absolute"}}>
                         <table>
                             <thead style={{position:"sticky", top:"0", zIndex:"1"}}>
@@ -246,13 +334,13 @@ export default function ProductPage(){
                                         <td>{p.productCategory.name}</td>
                                         <td><img alt="product" src={"https://res.cloudinary.com/djz6golwu/image/upload/"+p.productImage[0]}/></td>
                                         {/* sum all stock from product item */}
-                                        <td>0</td>
-                                        <td>{p.sold}</td>
+                                        <td>{countStock(p)}</td>
+                                        <td>{countSold(p)}</td>
                                         {/* <td>{p.price}</td>  */}
                                         <td>
                                             <div className="d-flex  gap-3">
                                                 <button className="p-2" style={{background:"#4CAF50", position:"relative"}} onClick={() => handleClickOpenEdit(p)}><i class="bi bi-pencil-square"></i><strong style={{marginLeft:"5px"}}>Edit</strong></button>
-                                                <button className="p-2" style={{background:"#D50000"}} onClick={() => deleteProduct(p.id)}><i class="bi bi-trash3"></i><strong style={{marginLeft:"5px"}}>Delete</strong></button>
+                                                <button className="p-2" style={{background:"#D50000"}} onClick={() => handleShowAlert(p)}><i class="bi bi-trash3"></i><strong style={{marginLeft:"5px"}}>Delete</strong></button>
                                                 <button className="p-2" style={{background:"grey"}} onClick={() => {
                                                     localStorage.setItem("product-config", JSON.stringify(p))    
                                                     navigate(`/configuration/${p.id}`)
@@ -260,7 +348,7 @@ export default function ProductPage(){
                                             </div>
                                         </td>
                                     </tr>
-                                )) : <h1>load data</h1>
+                                )) : <h1>NO DATA</h1>
                             }
                             
                         </table>
@@ -283,7 +371,7 @@ export default function ProductPage(){
                                 }
                                 <li class="page-item">
                                     <a class="page-link" onClick={() =>{
-                                        navigatePageable(curPage === products.totalPages - 1 ? curPage : curPage + 1)
+                                        navigatePageable(paginationNumber[curPage+1] !== undefined ? paginationNumber[curPage+1]: paginationNumber[curPage])
                                     }} aria-label="Next">
                                         <span aria-hidden="true">&raquo;</span>
                                     </a>
@@ -299,7 +387,7 @@ export default function ProductPage(){
                                 <Form.Select onChange={(e) => setCategory(e.target.value)} defaultValue={categories !== undefined ? categories.categoryList[0] : ""}>
                                     {
                                         categories !== undefined && categories.categoryList !== undefined ? categories.categoryList.map((c) =>(
-                                            <option value={c.id}>{c.name}</option>
+                                            <option value={c.id}>{c.name} {c.parent?.name}</option>
                                         )) : <option></option>
                                     }
                                 </Form.Select>
@@ -391,6 +479,26 @@ export default function ProductPage(){
                             </button>
                             </Modal.Footer>
                         </Modal>
+                        {/* DELETE ALERT */}
+                <Modal show={showAlert} onHide={handleCloseAlert} style={{textAlign:'center'}}>
+                    <Modal.Body >
+                        <i class="bi bi-x-circle" style={{fontSize:"60px",color:"red"}}></i>
+                        <h5 >Are you sure?</h5>
+                        <p >Do you really want to delete this product?<br/> This process cannot be undone</p>
+            
+                    </Modal.Body>
+                    <Modal.Footer >
+                        <div className="d-flex gap-3" style={{marginRight:"10%"}}>
+                            <button style={{backgroundColor:"grey"}}  onClick={handleCloseAlert}>
+                            No
+                        </button>
+                        <button style={{backgroundColor:"red"}} onClick={() => deleteProduct(curProduct.id)}>
+                            Yes
+                        </button>
+                        </div>
+                    
+                    </Modal.Footer>
+                </Modal>
                 </div>
             </div>
         </div>

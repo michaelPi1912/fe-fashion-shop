@@ -27,7 +27,7 @@ const LoginAdmin = () => {
     console.log(res);
     if(res.user.role === "ADMIN" || res.user.role === "MANAGER"){
       localStorage.setItem("admin-info" , JSON.stringify(res));
-      navigate("/dashboard");
+      navigate("/users");
     }
     
   }

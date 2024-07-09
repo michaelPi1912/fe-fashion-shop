@@ -5,6 +5,7 @@ import Form from 'react-bootstrap/Form';
 import { useNavigate } from "react-router-dom";
 
 import "../../style/css/admin/table.css"
+import toast from "react-hot-toast";
 
 
 export default function CategoryPage(){
@@ -24,7 +25,9 @@ export default function CategoryPage(){
     const [parentId, setParentId] = useState();
     const [cate, setCate] = useState();
     const [curCate, setCurCate] = useState();
-    const [curPage, setCurPage] = useState(1);
+    const [curPage, setCurPage] = useState(0);
+
+    console.log(parentId)
 
     let paginationNumber = []
 
@@ -53,7 +56,7 @@ export default function CategoryPage(){
         }
         
     }, []);
-    console.log(admin);
+    // console.log(admin);
     console.log(categories);
  
     if(categories !== undefined){
@@ -61,8 +64,8 @@ export default function CategoryPage(){
             paginationNumber.push(i);
         }
     }
-    console.log(paginationNumber)
-    console.log(categories !== undefined ? categories : "no data");
+    // console.log(paginationNumber)
+    // console.log(categories !== undefined ? categories : "no data");
     const loadData = () =>{
         fetch(`${process.env.REACT_APP_API_URL}/api/v1/category/all`,{
             headers: {
@@ -90,13 +93,14 @@ export default function CategoryPage(){
             },
           })
             .then(response => {
-                response.json()
-            }).then(
-                data =>{
+                if(response.status === 200){
+                    toast.success("Add Category Successfully")
                     loadData()
                     handleClickClose()
+                }else{
+                    toast.success("Cannot Add Category")
                 }
-            )
+            })
         }
     };
     const updateCategory = id => {
@@ -114,8 +118,11 @@ export default function CategoryPage(){
         })
         .then(response => {
             if(response.status === 200){
+                toast.success("Category Update Successful")
                 loadData()
                 handleClickCloseEdit()
+            }else{
+                toast.error("Cannot Update Category")
             }
         })
 
@@ -129,11 +136,13 @@ export default function CategoryPage(){
           }
         })
         .then(response => {
-        if(response.status === 200){
-            console.log("success")
-            loadData();
-            setShowAlert(false);
-        }
+            if(response.status === 200){
+                toast.success("Category Was Deleted")
+                loadData();
+                setShowAlert(false);
+            }else{
+                toast.error("Cannot Delete This Category")
+            }
         })
 
         
@@ -159,9 +168,9 @@ export default function CategoryPage(){
                 <div style={{padding: "2%"}} className="col">
                     <div>
                         <h1>Category</h1>
-                        <hr/>
+                        
                         <button onClick={handleClickOpen} style={{background: "#0288D1"}} className=""><i class="bi bi-plus-lg"></i><strong style={{marginLeft:"5px"}}>Add New</strong></button>
-                        <br/>
+                        <hr/><br/>
                         <table >
                             <tr style={{background:"black", color:"white"}}>
                                 <th style={{width:"25%"}}>Category Name</th>
@@ -173,12 +182,12 @@ export default function CategoryPage(){
                                
                                     <tr>
                                         <td>{cate.name}</td>
-                                        <td>{cate.parent === null ? "" : cate.parent}</td>
+                                        <td>{cate.parent?.name}</td>
                                         <td>
-                                            <div className="d-flex flex-row gap-3">
-                                                <button className="p-2" style={{background:"#4CAF50"}} onClick={() =>handleClickOpenEdit(cate)}><i class="bi bi-pencil-square"></i><strong style={{marginLeft:"5px"}}>Edit</strong></button>
-                                                <button className="p-2" style={{background:"#D50000"}} onClick={()=> handleOpenAlert(cate)}><i class="bi bi-trash3"></i><strong style={{marginLeft:"5px"}}>Delete</strong></button>
-                                                <button className="p-2" onClick={() => navigate(`/variation/${cate.id}`)}><i class="bi bi-gear-fill" ></i><br/><strong style={{marginLeft:"5px"}}>Variation</strong></button>
+                                            <div className="d-flex flex-row gap-3">                                                
+                                                <button className="p-2" onClick={() => navigate(`/variation/${cate.id}`)}><i class="bi bi-gear-fill" ></i><br/><strong style={{marginLeft:"5px"}}>Options</strong></button>
+                                                <button className="p-2" style={{background:"#4CAF50",display: (cate.name ==="Men" || cate.name === "Women")? "none":""}} onClick={() =>handleClickOpenEdit(cate)}><i class="bi bi-pencil-square"></i><strong style={{marginLeft:"5px"}}>Edit</strong></button>
+                                                <button className="p-2" style={{background:"#D50000",display: (cate.name ==="Men" || cate.name === "Women")? "none":""}} onClick={()=> handleOpenAlert(cate)}><i class="bi bi-trash3"></i><strong style={{marginLeft:"5px"}}>Delete</strong></button>
                                             </div>
                                         </td>
                                     </tr>
@@ -188,7 +197,8 @@ export default function CategoryPage(){
                             }
                             
                         </table>
-                        <nav aria-label="Page navigation example">
+                        
+                        <nav aria-label="Page navigation example" style={{position:"absolute", bottom:"10%", left:"55%"}}>
                             <ul class="pagination justify-content-center">
                                 <li class="page-item">
                                     <a class="page-link" onClick={() =>{
@@ -205,13 +215,14 @@ export default function CategoryPage(){
                                 }
                                 <li class="page-item">
                                     <a class="page-link" onClick={() =>{
-                                        navigatePageable(curPage === categories.totalPages - 1 ? curPage : curPage + 1)
+                                        navigatePageable(paginationNumber[curPage+1] !== undefined ? paginationNumber[curPage+1]: paginationNumber[curPage])
                                     }} aria-label="Next">
                                         <span aria-hidden="true">&raquo;</span>
                                     </a>
                                 </li>
                             </ul>
                             </nav>
+                            {/* Modal add new */}
                         <Modal show={open} onHide={handleClickClose}>
                             <Modal.Header closeButton>
                             <Modal.Title>Add New Product Category</Modal.Title>
@@ -234,9 +245,15 @@ export default function CategoryPage(){
                                 <Form.Label>Parent</Form.Label>
                                 <Form.Select onChange={(e) => setParentId(e.target.value)}>
                                     <option value="null">None</option>
-                                    <option value="Men">Men</option>
-                                    <option value="Women">Women</option>
-                                    <option value="Children">Children</option>
+                                    {
+                                        categories?.categoryList.map(category =>{
+                                            if(category.parent === null){
+                                                return <option value={category.id}>{category.name}</option>;
+                                            }
+                                        }
+                                            
+                                        )
+                                    }
                                 </Form.Select>
                                 </Form.Group>
                             </Form>
@@ -250,6 +267,7 @@ export default function CategoryPage(){
                             </button>
                             </Modal.Footer>
                         </Modal>
+                        {/* Modal edit */}
                         <Modal show={openEdit} onHide={handleClickCloseEdit}>
                             <Modal.Header closeButton>
                             <Modal.Title>Update Product Category</Modal.Title>
@@ -273,9 +291,13 @@ export default function CategoryPage(){
                                 <Form.Label>Parent</Form.Label>
                                 <Form.Select onChange={(e) => setParentId(e.target.value)}>
                                     <option value="null">None</option>
-                                    {/* <option value="Men">Men</option>
-                                    <option value="Women">Women</option>
-                                    <option value="Children">Children</option> */}
+                                    {
+                                        categories?.categoryList.map(category =>{
+                                            if(category.parent === null){
+                                                return <option value={category.id}>{category.name}</option>;
+                                            }
+                                        })
+                                    }
                                 </Form.Select>
                                 </Form.Group>
                             </Form>
@@ -289,16 +311,20 @@ export default function CategoryPage(){
                             </button>
                             </Modal.Footer>
                         </Modal>
+                        {/* Modal delete */}
                         <Modal show={showAlert} onHide={() => setShowAlert(false)}>
                             <Modal.Header closeButton>
                             <Modal.Title>Delete</Modal.Title>
                             </Modal.Header>
-                            <Modal.Body>Are you sure you want to delete?</Modal.Body>
+                            <Modal.Body>
+                            <h5 >Are you sure?</h5>
+                            <p >Do you really want to delete this category?<br/> This process cannot be undone</p>
+                            </Modal.Body>
                             <Modal.Footer>
                             <button  onClick={() => setShowAlert(false)}>
                                 No
                             </button>
-                            <button onClick={() => deleteCategory(cate.id)}>
+                            <button onClick={() => deleteCategory(cate.id)} style={{backgroundColor:"red"}}>
                                 Yes
                             </button>
                             </Modal.Footer>

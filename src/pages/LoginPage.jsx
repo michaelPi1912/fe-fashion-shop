@@ -1,4 +1,4 @@
-import React, { useState} from 'react';
+import React, { useEffect, useState} from 'react';
 import { useNavigate } from "react-router-dom";
 import { logo } from '../assets/data';
 import Footer from '../components/Footer';
@@ -11,6 +11,13 @@ export default function LoginPage(){
   const navigate = useNavigate();
   const [email, setEmail] = useState();
   const [password, setPassword] = useState();
+
+  useEffect(()=>{
+    if(localStorage.getItem("user-info") !== null){
+      navigate("/profile")
+    }
+  })
+
   async function loginUser(credentials) {
     let res = await fetch(process.env.REACT_APP_API_URL+'/api/v1/auth/authenticate', {
       method: 'POST',
@@ -71,7 +78,7 @@ export default function LoginPage(){
                     <button style={{color:'white', width:'100%'}} className="btn btn-info btn-lg btn-block" type="submit">Login</button>
                   </div>
 
-                  <p style={{textAlign:'center'}} className="small mb-5 pb-lg-2"><a className="text-muted" href="#!">Forgot password?</a></p>
+                  <p style={{textAlign:'center'}} className="small mb-5 pb-lg-2"><a className="text-muted" href="/forgotPassword">Forgot password?</a></p>
                   <p style={{textAlign:'center', marginTop:'-10%'}} >Don't have an account? <a href="/register" className="link-info">Register here</a></p>
 
                 </form>
@@ -86,10 +93,9 @@ export default function LoginPage(){
           </div>
         </div>
       </section>
+      <br/>
       <Footer/>
     </div>
   );
 }
-// LoginPage.propTypes = {
-//   setToken: PropTypes.func.isRequired
-// };
+

@@ -12,20 +12,35 @@ const CartSlice = createSlice({
     checkoutCart: (state, action) => {
       return [];
     },
+    // addToCart: (state, action) => {
+    //   return [...state, action.payload];
+    // },
     addToCart: (state, action) => {
-      return [...state, action.payload];
+
+      const index = state.findIndex(el => el.product.id === action.payload.product.id)
+      if(index === -1){
+        return [...state, action.payload];
+      }else{
+        return state.map((item, i) => index === i?{ ...item, qty: item.qty + +action.payload.qty } : item)
+      }
     },
     removeFromCart: (state, action) => {
       return state.filter((product) => action.payload !== product.id);
     },
-    increaseQty: (state, action) => {
+    changeQty: (state, action) => {
+      console.log(action  )
       return state.map((product) =>
-        product.id === action.payload ? { ...product, qty: product.qty + 1 } : product
+        product.id === action.payload.id ? { ...product, qty: +action.payload.qty <= 1?1 : +action.payload.qty} : product
       );
     },
     decreaseQty: (state, action) => {
       return state.map((product) =>
-        product.id === action.payload ? { ...product, qty: product.qty - 1 } : product
+        product.id === action.payload.id ? { ...product, qty: product.qty - 1 < 1?1: product.qty - 1} : product
+      );
+    },
+    increaseQty: (state, action) => {
+      return state.map((product) =>
+        product.id === action.payload.id ? { ...product, qty: product.qty +1 } : product
       );
     },
   },
@@ -36,7 +51,9 @@ export const {
   checkoutCart,
   addToCart,
   removeFromCart,
+  changeQty,
   increaseQty,
-  decreaseQty,
+  decreaseQty
+
 } = CartSlice.actions;
 export default CartSlice.reducer;

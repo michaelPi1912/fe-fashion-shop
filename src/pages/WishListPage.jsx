@@ -3,6 +3,7 @@ import NavbarNavigate from "../components/Navbar";
 import { useSelector, useDispatch } from "react-redux";
 import toast from "react-hot-toast";
 import { removeFromWishList } from "../redux/slices/WishList";
+import Footer from "../components/Footer";
 
 
 export default function WishListPage(){
@@ -61,6 +62,7 @@ export default function WishListPage(){
           .then(response => {
               if(response.status === 200){
                 setWishList(wishList.filter((item => item.id !== id)))
+                loadData()
                 toast.error("Removed item from wish list");
               }
           })
@@ -76,10 +78,11 @@ export default function WishListPage(){
         <div>
             <NavbarNavigate />
             <div style={{marginTop: "85px"}}>
-                <div style={{paddingLeft: "100px", paddingTop:"50px",paddingRight:"200px"}}>
+                <div style={{paddingLeft: "200px", paddingTop:"50px",paddingRight:"200px"}}>
                     <h1><strong>Wish List</strong></h1>
-                    <div style={{border:"1px solid black"}}>
+                    <div style={{border:"1px solid black",width:"80%"}}>
                             <br/>
+                            <p style={{marginLeft:"5%"}}>{total} Item(s)</p>
                             {
                                 wishList.length !== 0 ? wishList.map((product) =>(
                                     <div className="container" style={{width:"96%", marginLeft:"2%"}}>
@@ -89,17 +92,17 @@ export default function WishListPage(){
                                                 
                                                     src={"https://res.cloudinary.com/djz6golwu/image/upload/"+ product.productImage[0]}
                                                     alt={product.name}
-                                                    style={{width: "250px"}}
+                                                    style={{width: "150px"}}
                                                 />
                                                 <div>
-                                                    <h4>{product.name}</h4>
-                                                    <p><strong>{product.price} VND</strong></p>
+                                                    <h4><strong>{product.name}</strong></h4>
+                                                    <p><strong>{product?.productItem[0]?.price} VND</strong></p>
                                                     <p>{product.description}</p>
                                                 </div>
                                                 
                                             </div>
                                         </a>
-                                        <button style={{background:"none",position:"absolute",  top:"8%", left:"200px", width:"5%", height:"5%", color:"red", fontSize:"20px", zIndex:"1"}} 
+                                        <button style={{background:"none",position:"absolute",  top:"8%", left:"0%", width:"5%", height:"5%", color:"red", fontSize:"20px", zIndex:"1"}} 
                                           onClick={() => remove(product.id)}  ><i class="bi bi-heart-fill"></i></button>
                                         <hr/>
                                     </div>
@@ -119,6 +122,8 @@ export default function WishListPage(){
                 </div>
                 
             </div>
+            <br/>
+            <Footer/>
         </div>
     );
 }

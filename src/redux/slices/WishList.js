@@ -18,16 +18,6 @@ const WishListSlice = createSlice({
     removeFromWishList: (state, action) => {
       return state.filter((product) => action.payload !== product.product.id);
     },
-    // increaseQty: (state, action) => {
-    //   return state.map((product) =>
-    //     product.id === action.payload ? { ...product, qty: product.qty + 1 } : product
-    //   );
-    // },
-    // decreaseQty: (state, action) => {
-    //   return state.map((product) =>
-    //     product.id === action.payload ? { ...product, qty: product.qty - 1 } : product
-    //   );
-    // },
   },
 });
 
@@ -36,7 +26,5 @@ export const {
   removeAll,
   addToWishList,
   removeFromWishList,
-//   increaseQty,
-//   decreaseQty,
 } = WishListSlice.actions;
 export default WishListSlice.reducer;

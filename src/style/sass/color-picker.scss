@@ -1,0 +1,68 @@
+html,
+body {
+  // padding: 20px;
+  background: #eeeeee;
+  // text-align: center;
+}
+
+.color-picker {
+  font-size: 0;
+  
+  &__item {
+    display: inline-block;
+    
+    & + & {
+      margin-left: 10px;
+    }
+    
+    &:hover {
+      cursor: pointer;
+    }
+  }
+  
+  &__input {
+    display: none;
+    
+    &:checked {
+      + .color-picker__color {        
+        &:after {
+          content: '';
+        }
+      }
+    }
+    
+    &:disabled {
+      + .color-picker__color {
+        opacity: 0.5;
+        
+        &:hover {
+         cursor: not-allowed;
+        }
+      }
+    }
+  }
+  
+  &__color {
+    position: relative;
+    display: block;
+    width: 32px;
+    height: 32px;
+    
+    &:hover {
+      cursor: pointer;
+    }
+    
+    &:after {
+      pointer-events: none;
+      position: absolute;
+      top: -2px;
+      left: -2px;
+      width: calc(100% + 4px);
+      height: calc(100% + 4px);
+      outline: 2px solid darken($color: #000000, $amount: 25%);
+      content: none;
+    }
+  } 
+}
+
+
