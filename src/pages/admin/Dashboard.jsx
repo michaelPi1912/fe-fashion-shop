@@ -19,8 +19,32 @@ export default function DashBoard(){
         <div className="container-fluid">
             <div className="row">
                 <SideBar />
-                <div style={{marginLeft: "25%"}} className="col">
-                ... page content ...
+                <div style={{padding: "2%"}} className="col">
+                    <div>
+                        <h1><strong>Dashboard</strong></h1>
+                        
+                        {/* <button onClick={handleClickOpen} style={{background: "#0288D1"}} className=""><i class="bi bi-plus-lg"></i><strong style={{marginLeft:"5px"}}>Add New</strong></button> */}
+                        <hr/><br/>
+                        <div>
+                            <div className="d-flex flex-wrap gap-4 ">
+                                <button style={{padding:"5%", width:"22%"}} onClick={() => navigate("/users")}>
+                                    Users
+                                </button>
+                                <button style={{padding:"5%", width:"22%"}} onClick={() => navigate("/product")}>
+                                    Products
+                                </button>
+                                <button style={{padding:"5%", width:"22%"}} onClick={() => navigate("/orders")}>
+                                    Orders
+                                </button>
+                                <button style={{padding:"5%", width:"22%"}} onClick={() => navigate("/feedback")}>
+                                    FeedBack
+                                </button>
+                                {/* <button style={{padding:"5%", width:"20%"}}>
+                                    Product
+                                </button> */}
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

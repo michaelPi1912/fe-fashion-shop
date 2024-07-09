@@ -1,0 +1,38 @@
+select option {
+    margin: 40px;
+    background: rgba(121, 119, 119, 0.3);
+    color: #fff;
+    text-shadow: 0 1px 0 rgba(0, 0, 0, 0.4);
+  }
+  /* Ordered */
+  select option[value=1] {
+    background: #3b71ca;
+  }
+  /* in transit */
+  select option[value="2"] {
+    background:"#3b71ca";
+}
+  /* comple */
+  select option[value="3"] {
+    background: "#66ff33";
+  }
+  /* cancel */
+  select option[value="4"] {
+    background: "#ffcc33";
+  }
+  /* decline */
+  select option[value="5"] {
+    background: "#ffcc33";
+  }
+  /* refund */
+  select option[value="6"] {
+    background: "#ffcc33";
+  }
+  /* awaiting payment */
+  select option[value="7"] {
+    background:"#3b71ca";
+  }
+  /* shipped */
+  select option[value="8"] {
+    background: "#66ff33";
+  }
